@@ -1,0 +1,398 @@
+
+<html><head>
+		<title>Tic-Tac-Toe!</title>
+        <style>
+            body {
+                background-color: rgb(30,30,30);
+            }
+            h1 {
+                font-family:Monotype Corsiva;
+                text-align: center;
+                color: rgb(220,220,220);
+                font-size:90px;
+            }
+            #board {
+                background-color: rgb(220,220,220);
+                width:340px;
+                height:340px;
+                font-family: "Comfortaa";
+            }
+            .row1,.row2,.row3 {
+                width:100px;
+                height:100px;
+                display:inline-block;
+                margin:10px;
+                background-color: rgb(30,30,30);
+                color:transparent;
+                font-size:80px;
+                text-align:center;
+                cursor:pointer;
+
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            .row1{
+                margin-top:0;
+            }
+            .row3 {
+                margin-bottom: 0;
+            }
+            .column1 {
+                margin-left: 0;
+            }
+            .column3 {
+                margin-right: 0;
+            }
+            #message,#board {
+                position:absolute;
+                left:50%;
+                top:50%;
+                transform:translate(-50%,-50%);
+            }
+            #message {
+                top: 80%;
+                font-size: 50px;
+                font-family: "Comfortaa";
+                color:rgb(220,220,220);;
+                transform:translate(-50%,0);
+            }
+            #button {
+                font-family: "Comfortaa";
+                color:rgb(220,220,220);
+                float:right;
+            }
+            button {
+                border:0;
+                background-color: black;
+                width:50px;
+                height:20px;
+                border-radius: 10px;
+                margin-left:10px;
+                margin-right: 10px;
+                cursor:pointer;
+
+            }
+            button div {
+                float:left;
+                background-color: rgb(220,220,220);;
+                width:10px;
+                height:10px;
+                border-radius: 50%;
+                transition:all 0.5s;
+            }
+			#levelSelect {
+				font-family: "Comfortaa";
+				color:rgb(220,220,220);
+				position:fixed;
+				left:0;
+				bottom:0;
+			}
+			#levelSelect input,#levelSelect label {
+				cursor:pointer;
+			}
+			#levelSelect input{
+				margin:20px;
+				margin-right:0;
+			}
+            @font-face {
+                font-family: 'Comfortaa';
+                font-style: normal;
+                font-weight: 700;
+                src: local('Comfortaa Bold'), local('Comfortaa-Bold'), url(https://fonts.gstatic.com/s/comfortaa/v7/fND5XPYKrF2tQDwwfWZJI-gdm0LZdjqr5-oayXSOefg.woff2) format('woff2');
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Tic-Tac-Toe!</h1>
+        <div id="board">
+            <div class="row1 column1" data-pos="[0,0]" onclick="setMove(this.dataset.pos)">x</div><div class="row1 column2" data-pos="[0,1]" onclick="setMove(this.dataset.pos)">x</div><div class="row1 column3" data-pos="[0,2]" onclick="setMove(this.dataset.pos)">x</div><br>
+            <div class="row2 column1" data-pos="[1,0]" onclick="setMove(this.dataset.pos)">x</div><div class="row2 column2" data-pos="[1,1]" onclick="setMove(this.dataset.pos)">x</div><div class="row2 column3" data-pos="[1,2]" onclick="setMove(this.dataset.pos)">x</div><br>
+            <div class="row3 column1" data-pos="[2,0]" onclick="setMove(this.dataset.pos)">x</div><div class="row3 column2" data-pos="[2,1]" onclick="setMove(this.dataset.pos)">x</div><div class="row3 column3" data-pos="[2,2]" onclick="setMove(this.dataset.pos)">x</div>
+        </div>
+        <p id="message"></p>
+        <div id="button">O<button onclick="changeChoice();resetGame(-1);"><div></div></button>X</div>
+		<div id="levelSelect">
+			<input type="radio" id="level1" name="levels">
+			<label for="level1" onclick="triggerLevel(0);">Easy</label>
+			<input type="radio" id="level2" name="levels">
+			<label for="level2" onclick="triggerLevel(1);">Medium</label>
+			<input type="radio" id="level3" name="levels" checked>
+			<label for="level3" onclick="triggerLevel(2);">Hard</label>
+		</div>
+        <script>
+            var gameLoad=0, board=[[null,null,null],[null,null,null],[null,null,null]],priority=[[1,0,1],[0,2,0],[1,0,1]],wins=[[[1,0,0],[0,1,0],[0,0,1]],[[1,1,1],[0,0,0],[0,0,0]],[[1,0,0],[1,0,0],[1,0,0]],[[0,0,1],[0,1,0],[1,0,0]],[[0,0,1],[0,0,1],[0,0,1]],[[0,0,0],[0,0,0],[1,1,1]],[[0,1,0],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,0]]],forks=[[[1,-1,0],[-1,0,-1],[0,-1,1]],[[0,-1,1],[-1,0,-1],[1,-1,0]],[[-1,0,1],[0,1,-1],[-1,0,1]],[[1,0,0],[-1,0,0],[1,1,-1]],[[0,0,1],[0,0,-1],[-1,1,1]],[[1,-1,1],[0,0,1],[0,0,-1]],[[1,-1,1],[1,0,0],[-1,0,0]],[[1,1,-1],[-1,0,0],[1,0,0]],[[-1,1,1],[0,0,-1],[0,0,1]],[[0,0,-1],[0,0,1],[1,-1,1]],[[-1,0,0],[1,0,0],[1,-1,1]],[[0,0,-1],[0,0,1],[-1,1,1]]];
+						
+            var winCombo = -1;
+			function checkWin(val){
+                var nullCount= 0,iPos=0,jPos=0,match=0;
+                for(var a=0;a<8;a++){
+                    for(var i=0;i<3;i++) {
+                        for(var j=0;j<3;j++) {
+                            if(wins[a][i][j]==1){
+                                if(board[i][j]==val)++match;
+                                else if(board[i][j]===null){
+                                    ++match;
+                                    ++nullCount;
+                                    iPos=i;
+                                    jPos=j;
+                                }
+                            }
+                        }
+                    }
+                    if(nullCount==1&&match==3){
+						winCombo = a;
+                        return [true,iPos,jPos];
+                    }
+                    match=0;
+                    nullCount=0;
+                }
+                return false;
+            }
+			function checkWinAt(val,iPos,jPos){
+                var nullCount= 0,match=0;
+                for(var a=0;a<8;a++){
+                    for(var i=0;i<3;i++) {
+                        for(var j=0;j<3;j++) {
+                            if(wins[a][i][j]==1){
+                                if(board[i][j]==val)++match;
+                                else if(board[i][j]===null&&iPos==i&&jPos==j){
+                                    ++match;
+                                    ++nullCount;
+                                }
+                            }
+                        }
+                    }
+                    if(nullCount==1&&match==3){
+						winCombo = a;
+                        return true;
+                    }
+                    match=0;
+                    nullCount=0;
+                }
+                return false;
+            }
+			function checkFork(val) {
+				var nullCount= 0,iPos=0,jPos=0,match=0,emptyCount=0;
+				for(var a=0;a<2;a++){
+                    for(var i=0;i<3;i++) {
+                        for(var j=0;j<3;j++) {
+                            if(forks[a][i][j]==1&&board[i][j]==val) ++match;
+                            else if(forks[a][i][j]==-1&&board[i][j]===null){
+								iPos=i;
+                                jPos=j;
+								++emptyCount;
+							}
+                        }
+                    }
+                    if(match==2&&emptyCount>=1){
+						console.log("Yes!!");
+                        return [true,iPos,jPos];
+                    }
+                    match=0;
+                    emptyCount=0;
+                }
+                for(var a=2;a<12;a++){
+                    for(var i=0;i<3;i++) {
+                        for(var j=0;j<3;j++) {
+                            if(forks[a][i][j]==1){
+                                if(board[i][j]==val)++match;
+                                else if(board[i][j]===null){
+                                    ++match;
+                                    ++nullCount;
+                                    iPos=i;
+                                    jPos=j;
+                                }
+                            } else if(forks[a][i][j]==-1&&board[i][j]===null) ++emptyCount;
+                        }
+                    }
+                    if(nullCount==1&&match==3&&emptyCount>=2){
+						console.log("Yes!!");
+                        return [true,iPos,jPos];
+                    }
+                    match=0;
+                    nullCount=0;
+                }
+				console.log("No!!");
+                return false;
+			}
+			var level=2;
+			function triggerLevel(val) {
+				level = val;
+				localStorage.ticTacToeLevel = JSON.stringify(val);
+				document.getElementById("level"+(val+1)).checked = true;
+			}
+            var choice0="o",choice1="x";
+            function changeChoice(){
+                if(choice0=="o"){
+                    choice0="x";
+                    choice1="o";
+                    document.querySelector("button div").style.float="right";
+					localStorage.ticTacToeChoice = "x";
+                } else {
+                    choice0="o";
+                    choice1="x";
+                    document.querySelector("button div").style.float="left";
+					localStorage.ticTacToeChoice = "o";
+                }
+            }
+            function fill(y,x,val){
+                if(isNaN(x)||isNaN(y)||isNaN(val))console.log(y+":"+x+":"+val+" priority:"+priorityValue);
+                board[y][x]=val;
+                ++turn;
+                var ele = document.querySelector('[data-pos="['+y+','+x+']"]');
+                ele.style.color = "rgb(220,220,220)";
+                if(val==0){
+                    ele.innerHTML = choice0;
+                }
+                else ele.innerHTML = choice1;
+            }
+			function fillColor() {
+				for(var i=0;i<3;i++) {
+					for(var j=0;j<3;j++) {
+						if(wins[winCombo][i][j]==1) {
+							var ele = document.querySelector('[data-pos="['+i+','+j+']"]');
+							ele.style.color = "rgb(70,255,70)";
+						}
+					}
+				}
+				winCombo = -1;
+			}
+            function getPriority() {
+                var p=-1, iPos = 0, jPos = 0;
+                for(var i=0;i<3;i++) {
+                    for(var j=0;j<3;j++) {
+                        if(board[i][j]===null&&priority[i][j]>p){
+                            p=priority[i][j];
+                            iPos=i;
+                            jPos=j;
+                        }
+                    }
+                }
+                fill(iPos,jPos,1);
+            }
+			function getRandom() {
+				var i = Math.abs((Math.floor(Math.random()*3)) - 1), j = Math.abs((Math.floor(Math.random()*10)/3) - 1);
+				if(board[i][j]===null)fill(i,j,1);
+				else getRandom();
+			}
+            var turn = 0, gameEnd= 0;
+            function getMove() {
+                var iPos,jPos,nullCount=0;
+                if(gameEnd)return;
+                if(turn<=2&&level!=0) {
+                    getPriority();
+                } else {
+					var w = checkWin(1);
+					if(w[0]===true){
+						fill(w[1],w[2],1);
+						fillColor();
+						resetGame(1);
+						return;
+					}
+					if(level==0) {
+						getRandom();
+					} else {
+						w = checkWin(0);
+						if(w[0]===true){
+							fill(w[1],w[2],1);
+							return;
+						}
+						if(level==2) {
+							var f = checkFork(0);
+							if(f[0]===true) {
+								fill(f[1],f[2],1);
+								return;
+							}
+							f = checkFork(1);
+							if(f[0]===true) {
+								fill(f[1],f[2],1);
+								return;
+							}
+						}
+						getPriority();
+					}
+					
+                    for(var i=0;i<3;i++) {
+                        for(var j=0;j<3;j++)
+                            if(board[i][j]===null)++nullCount;
+                    }
+                    if(nullCount===0){
+                        resetGame(0);
+                    }
+                }
+            }
+            function setMove(pos) {
+				console.log(pos);
+                pos = JSON.parse(pos);
+                if(board[pos[0]][pos[1]]===null&&!gameEnd&&gameLoad){
+					var w = checkWinAt(0,pos[0],pos[1]);
+                    fill(pos[0],pos[1],0);
+					if(w===true) {
+						fillColor();
+						resetGame();
+						return;
+					}
+                    var nullCount=0;
+                    for(var i=0;i<3;i++) {
+                        for(var j=0;j<3;j++)
+                            if(board[i][j]===null)++nullCount;
+                    }
+                    if(nullCount===0){
+                        resetGame(0);
+                        return;
+                    }
+                    getMove();
+                }
+            }
+            function resetGame(res) {
+                gameEnd=1;
+                var ele = document.getElementById("message");
+				if(res===-1) {
+					ele.innerHTML = "Game has Reset!";
+				} else if(res===0) {
+                    ele.innerHTML = "It's a Draw";
+                } else if(res===1) {
+                    ele.innerHTML = "I Win!";
+                } else {
+                    ele.innerHTML = "You Win!";
+                }
+                setTimeout(function(){
+                    for(var i=0;i<3;i++) {
+                        for(var j=0;j<3;j++){
+                            board[i][j]=null;
+                            var ele = document.querySelector('[data-pos="['+i+','+j+']"]');
+                            ele.style.color="transparent";
+                        }
+                    }
+                    document.getElementById("message").innerHTML = "";
+                    gameEnd=0;
+                    priorityValue=null;
+                    turn=0;
+                    virtualTurn=0;
+                },1500);
+            }
+			window.onload = function() {
+				//store choice
+				if(localStorage.ticTacToeChoice == "x"){
+					changeChoice();
+				} else if(localStorage.ticTacToeChoice != "o"){
+					localStorage.ticTacToeChoice = "o";
+				}
+				
+				//store level
+				if(localStorage.ticTacToeLevel == "2"){
+					triggerLevel(2);
+				} else if(localStorage.ticTacToeLevel == "1") {
+					triggerLevel(1);
+				}
+				else if(localStorage.ticTacToeChoice != "0"){
+					localStorage.ticTacToeChoice = "0";
+				}
+				gameLoad=1;
+			};
+        </script>
+    
+</body></html>
