@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<head>
+	<title>Calculator by Manas Khurana</title>
+	<style>
+		body {
+		}
+		button:focus,input:focus {
+			outline: none !important;
+		}
+		section {
+			height:500px;
+			width:300px;
+			position: absolute;
+			left:50%;
+			top:50%;
+			transform:translate(-50%,-50%);
+			background-color: rgb(220,220,220);
+			border-radius: 10px;
+			box-shadow: inset 0 0 20px black;
+		}
+		#bigInp, #smallInp {
+			border: 0;
+			width:240px;
+			margin-left: 25px;
+			padding: 5px;
+			background-color: rgb(200,200,150);
+			color:rgb(50,100,20);
+			text-align: right;
+			border-radius: 5px 5px 0 0;
+		}
+		#bigInp {
+			margin-top: 20px;
+			font-size:30px;
+			border-radius: 5px 5px 0 0;
+		}
+		#smallInp {
+			border-radius: 0 0 5px 5px;
+			font-size: 15px;
+			color:rgba(50,100,20,0.5);
+		}
+		#buttons {
+			margin-left: 12.5px;
+			margin-top: 10px;
+		}
+		div button {
+			width:50px;
+			height:40px;
+			margin-top: 15px;
+			margin-left: 15px;
+			border:0;
+			background-color: rgb(30,30,30);
+			background: -webkit-linear-gradient(rgb(30,30,30), rgb(50,50,50));
+		    background: -moz-linear-gradient(rgb(30,30,30), rgb(50,50,50));
+		    background: linear-gradient(rgb(30,30,30), rgb(50,50,50));
+			color:white;
+			display:block;
+			float: left;
+			border-radius: 5px;
+			font-size: 20px;
+			font-weight: 900;
+			box-shadow: 1px 1px 0 4px black;
+		}
+		div button:active {
+			background: rgb(30,30,30);
+		    box-shadow: 1px 1px 0 2px black;
+		}
+		#zero {
+			width:115px;
+		}
+		#equal {
+			position: relative;
+			right:27.5px;
+			height: 95px;
+			float:right;
+		}
+		#top {
+			font-size: 25px;
+			text-align: center;
+			margin-top:30px;
+			margin-left: auto;
+			margin-right: auto;
+			border-radius: 10px;	
+			width:220px;
+			padding: 10px;
+			color:rgb(220,220,220);
+			font-family: "Bauhaus 93";
+			background-color: rgba(30,30,30,0.2);
+		}
+		div button, #bigInp, #smallInp {
+			font-family: "Courier New";
+		}
+	</style>
+</head>
+<body>
+<section>
+	<div id="top">Online Calculator</div>
+	<div id="mainScreen">
+		<input id="bigInp" type="text" value="0" readonly>
+		<br>
+		<input id="smallInp" type="text" value="0" readonly>
+	</div>
+	<div id="buttons">
+		<button type="button" data-id="" id="AC">AC</button>
+		<button type="button" data-id="" id="CE">CE</button>
+		<button type="button" data-id="" id="divide">/</button>
+		<button type="button" data-id="" id="multiply">x</button><br>
+		<button type="button" data-id="" id="seven">7</button>
+		<button type="button" id="eight">8</button>
+		<button type="button" id="nine">9</button>
+		<button type="button" id="subtract">-</button><br>
+		<button type="button" id="four">4</button>
+		<button type="button" id="five">5</button>
+		<button type="button" id="six">6</button>
+		<button type="button" id="add">+</button><br>
+		<button type="button" id="one">1</button>
+		<button type="button" id="two">2</button>
+		<button type="button" id="three">3</button>
+		<button type="button" id="equal">=</button><br>
+		<button type="button" id="zero">0</button>
+		<button type="button" id="point">.</button>	
+	</div>
+</section>
+<script>
+		var answer;
+		var writeEqn = function(input){
+			if(!isNaN(input)||input=="+"||input=="-"||input=="x"||input=="/"||input==".") {
+				if(document.getElementById("smallInp").value == "0" && input != ".")document.getElementById("smallInp").value = "";
+				document.getElementById("smallInp").value += input;
+			} else if(input=="=")
+				document.getElementById("smallInp").value+="="+answer;
+			else if(input=="AC")
+				document.getElementById("smallInp").value="0";
+			else if(input=="CE"){
+				if(!CE){
+					document.getElementById("smallInp").value = document.getElementById("smallInp").value.replace(document.getElementById("bigInp").value,"");
+					if(!document.getElementById("smallInp").value)document.getElementById("smallInp").value="0";
+					CE=1;
+				} else {
+					document.getElementById("smallInp").value="0";
+					CE=0;
+				}
+			}
+		};
+		var bigNum = function(value) {
+			if (value=="=")document.getElementById("bigInp").value=answer;
+			else if(value=="AC"||value=="CE"){
+				document.getElementById("bigInp").value="0";
+				dot=0;
+			}
+			else if(value==".")document.getElementById("bigInp").value += value;
+			else {
+				if(document.getElementById("bigInp").value == "0")document.getElementById("bigInp").value = "";
+				if(!isNaN(value)&&!isNaN(document.getElementById("bigInp").value)){
+					document.getElementById("bigInp").value += value;
+				} else document.getElementById("bigInp").value = value;
+			}
+		};
+		var dot=0,equal=0,CE=0,op=0,operator;
+		function clickRegister(ID,value){
+			if(equal) {
+				equal = 0;
+				op=0;
+				dot=0;
+				if(!isNaN(value)||value=="."){
+					document.getElementById("AC").click();
+					clickRegister(0,value);
+					return;
+				} else {
+					document.getElementById("smallInp").value = document.getElementById("bigInp").value;
+					clickRegister(0,value);
+					return;
+				}
+			}
+			if(value=="+"||value=="-"||value=="x"||value=="/"||value=="="){
+				if(op)return;
+				else {
+					op=1;
+					dot=0;
+					if(answer===undefined){
+						answer = Number(document.getElementById("bigInp").value);
+						operator=value;
+					}
+					else {
+						if(operator=="+")answer+=Number(document.getElementById("bigInp").value);
+						else if(operator=="-")answer-=Number(document.getElementById("bigInp").value);
+						else if(operator=="x")answer*=Number(document.getElementById("bigInp").value);
+						else if(operator=="/")answer/=Number(document.getElementById("bigInp").value);
+						operator=value;
+						if(answer===undefined||answer===null||isNaN(answer))answer="Error!";
+					}
+				}
+			} else op=0;
+			if(value=="AC") {
+				dot=0;
+				equal=0;
+				operator=undefined;
+				answer=undefined;	
+				CE=0;
+			}
+			if(value=="CE") {
+				if(equal||CE){
+					dot=0;
+					equal=0;
+					operator=undefined;
+					answer=undefined;
+				}
+			}
+			if(value==".")if(!dot)dot=1; else return;
+			if(value=="=")if(!equal)equal=1; else return;
+			writeEqn(value);
+			bigNum(value);
+			if(ID)document.getElementById(ID).blur();
+		}
+		for(var i=0,x=document.querySelectorAll("#buttons button");i<x.length;i++){
+			x[i].addEventListener("click", function() {
+				clickRegister(this.id,this.innerHTML);
+			});
+		x[i].dataset.id= x[i].textContent;
+		}
+		document.getElementById("AC").dataset.id="a";
+		document.getElementById("CE").dataset.id="c";
+		document.getElementById("multiply").dataset.id="*";
+		document.getElementsByTagName("body")[0].addEventListener("keypress",function(key){
+			if(key.keyCode==13)document.getElementById("equal").click();
+			else {
+				key = String.fromCharCode(Number(key.charCode));
+				document.querySelector("[data-id~='"+key+"']").click();
+			}
+		});
+		function handlePaste (e) {
+		    var clipboardData, pastedData;
+
+		    // Stop data actually being pasted into div
+		    e.stopPropagation();
+		    e.preventDefault();
+
+		    // Get pasted data via clipboard API
+		    clipboardData = e.clipboardData || window.clipboardData;
+		    pastedData = clipboardData.getData('Text');
+
+		    // Do whatever with pasteddata
+		    if(!isNaN(pastedData))clickRegister(0,pastedData);
+		}
+		document.addEventListener('paste', handlePaste);
+		document.contentEditable = true;
+</script>
+</body>
+</html>
